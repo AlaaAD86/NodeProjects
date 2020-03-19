@@ -39,11 +39,8 @@ app.post('/api/courses', (req, res) => {
     // we replace it with the validateCourse() function=======
    
     const { error } = validateCourse(req.body); // { error } = result.error
-    if (error){
-        //400 Bad request
-        res.status(400).send(error);
-        return;
-    }
+    //400 Bad request
+    if (error) return res.status(400).send(error);
 
     const course = {
         id: courses.length + 1,
@@ -53,12 +50,15 @@ app.post('/api/courses', (req, res) => {
     res.send(course);
 });
 
+
+
+
 app.put('/api/courses/:id', (req, res) => {
     //look up the course
     // return 404 if not exist
 
     const course = courses.find(c => c.id === parseInt(req.params.id));
-    if (!course) res.status(404).send('The id was not found');
+    if (!course) return res.status(404).send('The id was not found');
 
 
     //vvalidate
@@ -66,11 +66,8 @@ app.put('/api/courses/:id', (req, res) => {
    
     // const result = validateCourse(req.body); // to make cleaner = obj destructuring
     const { error } = validateCourse(req.body); // { error } = result.error
-    if (error){
-        //400 Bad request
-        res.status(400).send(error);
-        return;
-    }
+    //400 Bad request
+    if (error) return res.status(400).send(error);
 
     // update course
     course.name = req.body.name;
@@ -86,12 +83,6 @@ function validateCourse(course){
     return Joi.validate(course, schema);
 }
 
-app.get('/api/courses/:id', (req, res)=> {
-    const course = courses.find(c => c.id === parseInt(req.params.id));
-    if (!course) res.status(404).send('The id was not found');
-    res.send(course);
-});
-
 // app.get('/api/courses/:id', (req, res)=> {
 //     res.send(req.params.id); // http://localhost:3000/api/courses/1
 // });
@@ -104,6 +95,26 @@ app.get('/api/courses/:id', (req, res)=> {
 // app.get('/api/courses/:year/:month', (req, res)=> {
 //     res.send(req.query); // http://localhost:3000/api/courses/2025/2?sortBy=name
 // });
+
+app.delete('/api/courses/:id', (req, res) => {
+    // look for the course
+    const course = courses.find(c => c.id === parseInt(req.params.id));
+    if (!course) return res.status(404).send('The id was not found');
+
+    // delete
+    const index = courses.indexOf(course);
+    courses.splice(index, 1);
+
+    // return the same course
+    res.send(course);
+});
+
+app.get('/api/courses/:id', (req, res)=> {
+    const course = courses.find(c => c.id === parseInt(req.params.id));
+    if (!course) return res.status(404).send('The id was not found');
+    res.send(course);
+});
+
 
 const port = process.env.PORT || 3000; // to set dynamic port
 
